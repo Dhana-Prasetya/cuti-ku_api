@@ -1,93 +1,60 @@
 import BaseSchema from "@ioc:Adonis/Lucid/Schema";
 
 export default class extends BaseSchema {
-    protected userTable = "users";
-    protected paidLeaveTable = "paid_leave";
-    protected leaveBalanceTable = "leave_balances";
-
     public async up() {
-        // Users Table
-        this.schema.createTable(this.userTable, (table) => {
-            table
-                .uuid("id")
-                .primary()
-                .defaultTo(this.db.rawQuery("uuid_generate_v4()").toQuery());
-            table.string("username", 20).notNullable().unique();
-            table.string("email", 255).notNullable().unique();
-            table.string("password").nullable();
-            table
-                .enum("role", ["user", "admin"])
-                .defaultTo("user")
-                .notNullable();
-            table
-                .timestamp("created_at", { useTz: true })
-                .defaultTo(this.now());
-        });
+        this.schema
+            .raw(`CREATE TYPE role_enum AS ENUM ('user', 'admin'); -- Constant choice for role
+                  CREATE TYPE status_enum AS ENUM ('Pending', 'Approved', 'Rejected');
+                  CREATE EXTENSION IF NOT EXISTS btree_gist;
 
-        // Paid Leave Table
-        this.schema.createTable(this.paidLeaveTable, (table) => {
-            table.increments("id").primary();
-            table
-                .uuid("user_id")
-                .references("id")
-                .inTable(this.userTable)
-                .onDelete("RESTRICT");
-            table.date("start_date").notNullable();
-            table.date("end_date").notNullable();
-            table.string("attachment_url", 500).notNullable();
-            table.string("rejection_reason", 500).nullable();
-            table
-                .enum("status", ["Pending", "Approved", "Rejected"])
-                .defaultTo("Pending")
-                .notNullable();
-            table
-                .uuid("approved_by")
-                .references("id")
-                .inTable(this.userTable)
-                .notNullable();
-            table
-                .timestamp("created_at", { useTz: true })
-                .defaultTo(this.now());
-        });
+                  CREATE EXTENSION IF NOT EXISTS "uuid-ossp"; -- For native uuid
 
-        // 3. Leave Balances Table
-        this.schema.createTable(this.leaveBalanceTable, (table) => {
-            table
-                .uuid("user_id")
-                .references("id")
-                .inTable(this.userTable)
-                .onDelete("RESTRICT");
-            table.integer("year").notNullable();
-            table.integer("total_allowed").defaultTo(12);
-            table.integer("taken").defaultTo(0);
 
-            // Define Composite Primary Key
-            table.primary(["user_id", "year"]);
-        });
+                  CREATE TABLE users (
+                      id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+                      name VARCHAR(255),
+                      email VARCHAR(255) UNIQUE NOT NULL,
+                      password VARCHAR(255),
+                      role role_enum NOT NULL DEFAULT 'user',
+                      created_at timestamp with time zone default now()
+                  );
 
-        // SQL Constraints
-        this.defer(async (db) => {
-            await db.rawQuery(`
-                ALTER TABLE ${this.paidLeaveTable} 
-                ADD CONSTRAINT check_dates CHECK (end_date >= start_date)
-            `);
+                  CREATE TABLE paid_leave (
+                      id SERIAL PRIMARY KEY,
+                      user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+                      start_date DATE NOT NULL,
+                      end_date DATE NOT NULL,
+                      attachment_url VARCHAR(500) not null,
+                      status status_enum NOT NULL DEFAULT 'Pending',
+                      rejection_reason varchar(500),
+                      approved_by UUID REFERENCES users(id) not null ON DELETE RESTRICT,
+                      created_at timestamp with time zone default now(),
+                      CONSTRAINT check_dates CHECK (end_date >= start_date),
+                      CONSTRAINT check_future_start CHECK (start_date >= CURRENT_DATE - INTERVAL '1 day')
+                  );
 
-            // Exclusion constraint
-            await db.rawQuery(`
-                ALTER TABLE ${this.paidLeaveTable} 
-                ADD CONSTRAINT exclude_overlapping_leave 
-                EXCLUDE USING gist (
-                  user_id WITH =,
-                  ( daterange(start_date, end_date, '[]') ) WITH &&
-                )
-            `);
-        });
+                  CREATE TABLE leave_balances (
+                      user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+                      year INT NOT NULL,
+                      total_allowed INT DEFAULT 12 CHECK (total_allowed >= 0 AND total_allowed <= 12), -- Deduct when 'taken' increase
+                      taken INT DEFAULT 0 CHECK (taken <= total_allowed),
+                      PRIMARY KEY (user_id, year)
+                  );
+
+                  ALTER TABLE paid_leave 
+                  ADD CONSTRAINT exclude_overlapping_leave 
+                  EXCLUDE USING gist (
+                    user_id WITH =,
+                    ( daterange(start_date, end_date, '[]') ) WITH &&
+                  );`);
     }
 
     public async down() {
-        // Drop in reverse order to avoid foreign key violations
-        this.schema.dropTable(this.leaveBalanceTable);
-        this.schema.dropTable(this.paidLeaveTable);
-        this.schema.dropTable(this.userTable);
+        this.schema.dropTable("leave_balances");
+        this.schema.dropTable("paid_leave");
+        this.schema.dropTable("users");
+        // Remember to drop types too
+        this.schema.raw("DROP TYPE role_enum");
+        this.schema.raw("DROP TYPE status_enum");
     }
 }

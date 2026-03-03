@@ -1,4 +1,4 @@
-class Paid_Leave {
+export class Paid_Leave {
     public id: string;
     public user_id: string;
     public start_date: Date;
@@ -28,5 +28,3 @@ class Paid_Leave {
         this.approved_by = approved_by;
     }
 }
-
-module.exports = Paid_Leave;

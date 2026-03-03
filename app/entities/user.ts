@@ -1,4 +1,4 @@
-class User {
+export class User {
     public id: string;
     public username: string;
     public email: string;
@@ -28,5 +28,3 @@ class User {
         };
     }
 }
-
-module.exports = User;

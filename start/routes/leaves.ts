@@ -3,24 +3,14 @@ import Route from "@ioc:Adonis/Core/Route";
 export default function leavesRoutes() {
     Route.group(() => {
         // User
-        Route.post("/add", async () => {
-            return { message: "Welcome to Cuti-Ku API!" };
-        });
+        Route.post("/", "LeavesController.add");
 
-        Route.delete("/del/:id", async () => {
-            return { message: "Welcome to Cuti-Ku API!" };
-        });
+        Route.delete("del/:id", "LeavesController.delete");
 
-        Route.get("/my-list", async () => {
-            return { message: "Welcome to Cuti-Ku API!" };
-        });
+        Route.get("my-list", "LeavesController.myLeaveList");
 
         // Admin
-        Route.get("/list", async () => {
-            return { message: "Welcome to Cuti-Ku API!" };
-        });
-        Route.patch("/list/:id", async () => {
-            return { message: "Welcome to Cuti-Ku API!" };
-        });
-    }).prefix("/leaves");
+        Route.get("list", "LeavesController.paginatedLeaveList");
+        Route.patch("list/:id", "LeavesController.confirmLeave");
+    }).prefix("leaves");
 }

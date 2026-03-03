@@ -1,5 +1,17 @@
 {
   "commands": {
+    "admin:register": {
+      "settings": {
+        "loadApp": true,
+        "stayAlive": false
+      },
+      "commandPath": "./commands/adminRegister",
+      "commandName": "admin:register",
+      "description": "Register admin user by email",
+      "args": [],
+      "aliases": [],
+      "flags": []
+    },
     "dump:rcfile": {
       "settings": {},
       "commandPath": "@adonisjs/core/build/commands/DumpRc",

@@ -1,4 +1,4 @@
-class Leave_Balance {
+export class Leave_Balance {
     public user_id: string;
     public year: number;
     public total_allowed: number;
@@ -16,5 +16,3 @@ class Leave_Balance {
         this.taken = taken;
     }
 }
-
-module.exports = Leave_Balance;
