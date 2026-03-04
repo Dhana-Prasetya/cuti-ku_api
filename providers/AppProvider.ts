@@ -4,11 +4,40 @@ export default class AppProvider {
     constructor(protected app: ApplicationContract) {}
 
     public register() {
-        this.app.container.singleton("App/Repositories/LucidRepository", () => {
+        this.app.container.singleton("App/UserRepository", () => {
             const {
-                default: LucidRepository,
-            } = require("App/repositories/LucidRepository");
-            return new LucidRepository();
+                default: LucidUserRepository,
+                // eslint-disable-next-line @typescript-eslint/no-var-requires
+            } = require("App/repositories/LucidUserRepository");
+
+            return new LucidUserRepository();
+        });
+
+        this.app.container.singleton("App/Repositories/CacheRepository", () => {
+            const {
+                default: RedisUserRepository,
+                // eslint-disable-next-line @typescript-eslint/no-var-requires
+            } = require("App/repositories/RedisUserRepository");
+
+            return new RedisUserRepository();
+        });
+
+        this.app.container.singleton("App/Services/JwtServicesContract", () => {
+            const {
+                default: JwtRepository,
+                // eslint-disable-next-line @typescript-eslint/no-var-requires
+            } = require("App/services/JwtRepository");
+
+            return new JwtRepository();
+        });
+
+        this.app.container.singleton("App/Services/OAuthProvider", () => {
+            const {
+                default: GoogleOAuthProvider,
+                // eslint-disable-next-line @typescript-eslint/no-var-requires
+            } = require("App/services/AllyGoogleOauthProvider");
+
+            return new GoogleOAuthProvider();
         });
     }
 

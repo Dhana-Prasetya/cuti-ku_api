@@ -6,18 +6,11 @@ export default function authRoutes() {
             return { message: "Welcome to Cuti-Ku API!" };
         });
 
-        Route.get("google", async () => {
-            return { message: "Welcome to Cuti-Ku API!" };
-        });
+        Route.get("google", "AuthController.google");
 
-        Route.get("google-callback", async () => {
-            return { message: "Welcome to Cuti-Ku API!" };
-        });
+        Route.get("google-callback", "AuthController.googleCallback");
 
-        Route.post("set-password", async ({ request }) => {
-            return { message: "Welcome to Cuti-Ku API!" };
-        });
-
+        Route.post("set-password", "AuthController.setPassword");
         Route.patch("change-password", async () => {
             return { message: "Welcome to Cuti-Ku API!" };
         });

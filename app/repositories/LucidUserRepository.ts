@@ -26,14 +26,37 @@ export default class LucidUserRepository implements UserRepository {
         const query = await User.query()
             .select("password")
             .where("email", email)
-            .firstOrFail();
+            .first();
 
         return query;
     }
 
-    public async setPassword(password: string) {
-        await User.create({
-            email: password,
+    public async oauthLogin(email: string) {
+        const query = await User.query()
+            .where("email", email)
+            .select(["id", "email", "name", "role"])
+            .first();
+        return query;
+    }
+
+    public async oauthSetName(email: string, name: string) {
+        const query = await User.query().where("email", email).update({
+            name,
         });
+    }
+
+    public async setPassword(id: string, hashedPassword: string) {
+        await User.query().where("id", id).update({
+            password: hashedPassword,
+        });
+    }
+
+    public async isPasswordExist(id: string) {
+        const query = await User.query()
+            .select("password")
+            .where("id", id)
+            .first();
+
+        return query;
     }
 }

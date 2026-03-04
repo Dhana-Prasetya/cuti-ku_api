@@ -28,6 +28,7 @@ const allyConfig: AllyConfig = {
         clientId: Env.get("GOOGLE_CLIENT_ID"),
         clientSecret: Env.get("GOOGLE_CLIENT_SECRET"),
         callbackUrl: "http://localhost:5000/auth/google-callback",
+        scopes: ["profile", "email"],
     },
 };
 
