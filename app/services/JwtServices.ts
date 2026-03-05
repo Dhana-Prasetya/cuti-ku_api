@@ -3,7 +3,7 @@ import { randomUUID } from "crypto";
 import Env from "@ioc:Adonis/Core/Env";
 import type { JwtServicesContract } from "@ioc:App/Services/JwtServicesContract";
 
-export default class JwtRepository implements JwtServicesContract {
+export default class JwtServices implements JwtServicesContract {
     public createToken = (id: string, role: string) => {
         const jti = randomUUID();
 

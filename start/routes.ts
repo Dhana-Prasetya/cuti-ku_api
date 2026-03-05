@@ -22,7 +22,11 @@ import Route from "@ioc:Adonis/Core/Route";
 import authRoutes from "./routes/auth";
 
 Route.get("/", async () => {
-    return { message: "Welcome to Cuti-Ku API!" };
+    return { code: 200, message: "Welcome to Cuti-Ku API!" };
 });
 
 authRoutes();
+
+Route.get("*", async () => {
+    return { code: 404, message: "Route not found" };
+});

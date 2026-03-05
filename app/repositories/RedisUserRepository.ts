@@ -2,16 +2,25 @@ import type { CacheRepository } from "@ioc:App/Repositories/CacheRepository";
 import redisClient from "Config/redisClient";
 
 export default class RedisUserRepository implements CacheRepository {
-    async save(key: string, value: any, ttl: number) {
-        await redisClient.setEx(key, ttl, value.toString());
+    async saveRefreshToken(key: string, value: any, ttl: number) {
+        await redisClient.setEx(`rt:${key}`, ttl, value.toString());
     }
 
-    async get(key: string) {
-        const data: any = await redisClient.get(key);
+    async getRefreshToken(key: string) {
+        const data: any = await redisClient.get(`rt:${key}`);
         return data;
     }
 
-    async delete(key: string) {
-        await redisClient.del(key);
+    async deleteRefreshToken(key: string) {
+        await redisClient.del(`rt:${key}`);
+    }
+
+    async revokeSession(key: string, ttl: number) {
+        await redisClient.setEx(`revoked:${key}`, ttl, "");
+    }
+
+    async getRevokedToken(key: string) {
+        const data: any = await redisClient.get(`revoked:${key}`);
+        return data;
     }
 }

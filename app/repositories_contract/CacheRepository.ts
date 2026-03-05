@@ -1,8 +1,10 @@
 declare module "@ioc:App/Repositories/CacheRepository" {
     export interface CacheRepository {
-        save(key: string, value: any, ttl: number): Promise<void>;
-        get(key: string): Promise<any>;
-        delete(key: string);
+        saveRefreshToken(key: string, value: any, ttl: number): Promise<void>;
+        getRefreshToken(key: string): Promise<any>;
+        deleteRefreshToken(key: string): Promise<void>;
+        revokeSession(key: string, ttl: number): Promise<void>;
+        getRevokedToken(key: string): Promise<any>;
     }
 
     const cacheRepository: CacheRepository;

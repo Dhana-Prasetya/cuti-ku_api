@@ -17,8 +17,7 @@
             "@adonisjs/core",
             "@adonisjs/repl",
             "@japa/preset-adonis/build/adonis-typings",
-            "@adonisjs/ally",
-            "@adonisjs/lucid"
+            "@adonisjs/ally"
         ]
     }
 }

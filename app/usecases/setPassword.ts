@@ -1,22 +1,22 @@
 import userRepository from "@ioc:App/UserRepository";
 import Hash from "@ioc:Adonis/Core/Hash";
+import ErrorMapper from "App/helper/ErrorMapper";
+import LoggerContract from "@ioc:App/Services/LoggerContract";
 
 export default class SetPassword {
     public static async runUseCase(id: string, password: string) {
-        try {
-            const passwordExist = await userRepository.isPasswordExist(id);
+        LoggerContract.info("", "Starting set password process");
 
-            if (passwordExist) {
-                return false;
-            }
+        const fetchedData = await userRepository.isPasswordExist(id);
 
-            const hashedPassword = await Hash.make(password);
-
-            await userRepository.setPassword(id, hashedPassword);
-
-            return true;
-        } catch (error) {
-            throw new Error("Internal server error");
+        if (fetchedData.password) {
+            throw new ErrorMapper("Password already set !", 403);
         }
+
+        const hashedPassword = await Hash.make(password);
+
+        await userRepository.setPassword(id, hashedPassword);
+
+        LoggerContract.info("", "Successfully completed set password process");
     }
 }

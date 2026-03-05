@@ -8,7 +8,7 @@ export default class AppProvider {
             const {
                 default: LucidUserRepository,
                 // eslint-disable-next-line @typescript-eslint/no-var-requires
-            } = require("App/repositories/LucidUserRepository");
+            } = require("App/repositories/PrismaUserRepository");
 
             return new LucidUserRepository();
         });
@@ -24,11 +24,11 @@ export default class AppProvider {
 
         this.app.container.singleton("App/Services/JwtServicesContract", () => {
             const {
-                default: JwtRepository,
+                default: JwtServices,
                 // eslint-disable-next-line @typescript-eslint/no-var-requires
-            } = require("App/services/JwtRepository");
+            } = require("App/services/JwtServices");
 
-            return new JwtRepository();
+            return new JwtServices();
         });
 
         this.app.container.singleton("App/Services/OAuthProvider", () => {
@@ -38,6 +38,15 @@ export default class AppProvider {
             } = require("App/services/AllyGoogleOauthProvider");
 
             return new GoogleOAuthProvider();
+        });
+
+        this.app.container.singleton("App/Services/LoggerContract", () => {
+            const {
+                default: PinoLogger,
+                // eslint-disable-next-line @typescript-eslint/no-var-requires
+            } = require("App/services/PinoLogger");
+
+            return new PinoLogger();
         });
     }
 

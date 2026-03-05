@@ -1,7 +1,7 @@
 import { schema, CustomMessages, rules } from "@ioc:Adonis/Core/Validator";
 import type { HttpContextContract } from "@ioc:Adonis/Core/HttpContext";
 
-export default class ConventionalLoginValidator {
+export default class EmailValidator {
     constructor(protected ctx: HttpContextContract) {}
 
     public schema = schema.create({
@@ -9,7 +9,6 @@ export default class ConventionalLoginValidator {
             rules.email(), // Automatically checks for '@' and valid domain
             rules.maxLength(255),
         ]),
-        password: schema.string({ trim: true }, [rules.maxLength(255)]),
     });
 
     public messages: CustomMessages = {
@@ -17,8 +16,5 @@ export default class ConventionalLoginValidator {
         "email.string": "Email must be a string",
         "email.email": "Please provide a valid email address",
         "email.maxLength": "Email cannot be longer than 255 characters",
-        "password.required": "Password is required",
-        "password.string": "Password must be a string",
-        "password.maxLength": "Password cannot be longer than 255 characters",
     };
 }
