@@ -1,6 +1,6 @@
 # Cuti Ku API
 
-The Employee Management System is a comprehensive application designed to manage employee data, leaves, and authentication. It provides a robust and scalable solution for businesses to streamline their employee management processes. The system is built using AdonisJs, a Node.js framework, and utilizes Prisma for database management.
+Cuti Ku API is a comprehensive application designed to manage employee data, leaves, and authentication. It provides a robust and scalable solution for businesses to streamline their employee management processes. The system is built using AdonisJs, a Node.js language, Prisma for database management, Redis as caching and session handler, and Cloudinary as cloud storage.
 
 ## Docker Compose Installation
 
@@ -67,7 +67,7 @@ Work in progress, stay tune
 
 To install the Employee Management System, follow these steps:
 
-1. Clone the repository: `git clone https://github.com/your-repo/employee-management-system.git`
+1. Clone the repository: `git clone https://github.com/Dhana-Prasetya/cuti-ku_api`
 2. Install dependencies: `npm install` or `yarn install`
 3. Configure environment variables: create a `.env` file and add your database connection URL, secret key, and other required variables
 4. Pull schema from database by using script: `npm run pull-db` (or manual migration)
