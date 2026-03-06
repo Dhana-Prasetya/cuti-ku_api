@@ -31,4 +31,9 @@ export default class JwtServices implements JwtServicesContract {
         const decoded = jwt.verify(userToken, Env.get("SECRET_KEY"));
         return decoded;
     };
+
+    public generateUniqueId = () => {
+        const uniqueId = randomUUID();
+        return uniqueId;
+    };
 }

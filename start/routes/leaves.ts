@@ -3,7 +3,7 @@ import Route from "@ioc:Adonis/Core/Route";
 export default function leavesRoutes() {
     Route.group(() => {
         // User
-        Route.post("/", "LeavesController.add").middleware(
+        Route.post("/submit", "LeavesController.submit").middleware(
             "EmployeeCookieAuth",
         );
 
@@ -12,7 +12,7 @@ export default function leavesRoutes() {
         );
 
         Route.get("my-list", "LeavesController.myLeaveList").middleware(
-            "EmployeeCookieAuth",
+            "GlobalCookieAuth",
         );
 
         // Admin
@@ -20,7 +20,7 @@ export default function leavesRoutes() {
             "AdminCookieAuth",
         );
 
-        Route.patch("list/:id", "LeavesController.confirmLeave").middleware(
+        Route.patch("list/confirm", "LeavesController.confirmLeave").middleware(
             "AdminCookieAuth",
         );
     }).prefix("leaves");

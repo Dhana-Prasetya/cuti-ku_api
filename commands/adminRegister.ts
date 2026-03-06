@@ -1,5 +1,6 @@
 import { BaseCommand } from "@adonisjs/core/build/standalone";
-import type { LucidRepositoryContract } from "@ioc:App/Repositories/LucidRepositoryContract";
+import Hash from "@ioc:Adonis/Core/Hash";
+import type { UserRepository } from "@ioc:App/UserRepository";
 
 export default class AdminRegister extends BaseCommand {
     public static commandName = "admin:register";
@@ -35,12 +36,15 @@ export default class AdminRegister extends BaseCommand {
             return;
         }
 
-        const lucidRepository =
-            await this.application.container.make<LucidRepositoryContract>(
-                "App/Repositories/LucidRepository",
-            );
+        const password = await this.prompt.ask("Enter admin password:");
 
-        await lucidRepository.registerAdmin(email);
+        const hashedPassword = await Hash.make(password);
+
+        const userRepository = this.application.container.use(
+            "App/UserRepository",
+        ) as UserRepository;
+
+        await userRepository.registerAdmin(email, hashedPassword);
         this.logger.success(`Admin registered successfully: ${email}`);
     }
 }

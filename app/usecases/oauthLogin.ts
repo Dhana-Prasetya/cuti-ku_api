@@ -36,6 +36,10 @@ export default class oauthLogin {
             await UserRepository.oauthSetName(userData.email, userData.name);
         }
 
+        if (existingUser.enabled === false) {
+            throw new ErrorMapper("User account is disabled !", 403);
+        }
+
         if (oldRefreshToken) {
             await cacheRepository.deleteRefreshToken(oldRefreshToken); // Invalidate the old refresh token
         }

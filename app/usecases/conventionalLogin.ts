@@ -28,6 +28,10 @@ export default class ConventionalLogin {
             );
         }
 
+        if (query.enabled === false) {
+            throw new ErrorMapper("User account is disabled !", 403);
+        }
+
         const matchedPassword = await Hash.verify(query.password, password);
 
         if (!matchedPassword) {

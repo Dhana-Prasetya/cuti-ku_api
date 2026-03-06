@@ -48,6 +48,18 @@ export default class AppProvider {
 
             return new PinoLogger();
         });
+
+        this.app.container.singleton(
+            "App/Services/CloudinaryServicesContract",
+            () => {
+                const {
+                    default: CloudinaryServices,
+                    // eslint-disable-next-line @typescript-eslint/no-var-requires
+                } = require("App/services/CloudinaryServices");
+
+                return new CloudinaryServices();
+            },
+        );
     }
 
     public async boot() {

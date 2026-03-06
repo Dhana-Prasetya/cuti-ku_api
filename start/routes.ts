@@ -20,12 +20,16 @@
 
 import Route from "@ioc:Adonis/Core/Route";
 import authRoutes from "./routes/auth";
+import leavesRoutes from "./routes/leaves";
+import userRoutes from "./routes/user";
 
 Route.get("/", async () => {
     return { code: 200, message: "Welcome to Cuti-Ku API!" };
 });
 
 authRoutes();
+leavesRoutes();
+userRoutes();
 
 Route.get("*", async () => {
     return { code: 404, message: "Route not found" };
