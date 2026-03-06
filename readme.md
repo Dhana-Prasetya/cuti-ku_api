@@ -2,6 +2,10 @@
 
 The Employee Management System is a comprehensive application designed to manage employee data, leaves, and authentication. It provides a robust and scalable solution for businesses to streamline their employee management processes. The system is built using AdonisJs, a Node.js framework, and utilizes Prisma for database management.
 
+## Docker Compose Installation
+
+Work in progress, stay tune
+
 ## Features
 
 - Employee registration and management
@@ -26,6 +30,31 @@ The Employee Management System is a comprehensive application designed to manage
 - pino
 - reflect-metadata
 - source-map-support
+
+## System Diagram
+
+        +------------+
+        |   Client   |
+        | Web        |
+        +------------+
+                │
+                ▼
+        +------------+
+        | API Server |
+        |  AdonisJS  |
+        +------------+
+            │       │
+            ▼       ▼
+    +--------+ +--------+
+    | Redis  | |Postgres|
+    |Session | |Database|
+    +--------+ +--------+
+            │
+            ▼
+        +-----------+
+        |Cloudinary |
+        |Attachments|
+        +-----------+
 
 ## Required External Stack
 
