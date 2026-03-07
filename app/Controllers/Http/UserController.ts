@@ -1,11 +1,10 @@
 import type { HttpContextContract } from "@ioc:Adonis/Core/HttpContext";
-import ErrorMapper from "App/helper/ErrorMapper";
 import standarizedResponse from "App/helper/standarizedResponse";
 import EnableEmployeeAccount from "App/usecases/enableEmployeeAccount";
 import FetchPaginatedUser from "App/usecases/fetchPaginatedUser";
-import IdValidator from "App/Validators/IdValidator";
 
 import PaginationValidator from "App/Validators/PaginationValidator";
+import UpdateEmployeeStatusValidator from "App/Validators/UpdateEmployeeStatusValidator";
 
 export default class UserController {
     public async list({ request, response }: HttpContextContract) {
@@ -29,20 +28,18 @@ export default class UserController {
     }
 
     public async enable({ request, response }: HttpContextContract) {
-        const user_id = request.param("id");
+        const requestObject = await request.validate(
+            UpdateEmployeeStatusValidator,
+        );
 
-        const body = request.body();
+        const { id, enable } = requestObject;
 
-        let enableStatus: any = true;
+        const user_id = id; // for better readability
 
-        if (body.enable === "false") {
+        let enableStatus: any = true; // default as true, can be true or false
+
+        if (enable === "false") {
             enableStatus = false;
-        }
-        if (body.enable !== "false" && body.enable !== "true") {
-            throw new ErrorMapper(
-                "Enable value only support 'true' or 'false' !",
-                400,
-            );
         }
 
         const data = await EnableEmployeeAccount.runUseCase({

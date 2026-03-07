@@ -50,6 +50,16 @@ export default class ExceptionHandler extends HttpExceptionHandler {
             return ctx.response
                 .status(error.status)
                 .send(standarizedResponse(null, error.status, error.message));
+        }
+
+        if (
+            error.code === "E_JSON_PARSE_ERROR" ||
+            error.name === "SyntaxError"
+        ) {
+            loggerServices.warn("", `Malformed JSON request: ${error.message}`);
+            return ctx.response
+                .status(400)
+                .send(standarizedResponse(null, 500, "Malformed JSON !"));
         } else {
             loggerServices.error("", error.message);
 

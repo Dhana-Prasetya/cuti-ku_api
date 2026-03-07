@@ -12,6 +12,7 @@ import IdValidator from "App/Validators/IdValidator";
 import LeaveConfirmValidator from "App/Validators/LeaveConfirmValidator";
 import ConfirmLeaves from "App/usecases/confirmLeaves";
 import DeleteMyLeaves from "App/usecases/deleteMyLeaves";
+import { pathToFileURL } from "url";
 
 export default class LeavesController {
     public async submit({ user_id, request, response }: HttpContextContract) {
@@ -34,7 +35,7 @@ export default class LeavesController {
 
         const requestObject = await request.validate(DateValidator);
 
-        const { start_date, end_date } = requestObject;
+        let { start_date, end_date } = requestObject; // returning luxon date format
 
         if (start_date > end_date) {
             return response
@@ -145,15 +146,28 @@ export default class LeavesController {
             );
     }
 
-    public async confirmLeave({ request, response }: HttpContextContract) {
+    public async confirmLeave({
+        user_id,
+        request,
+        response,
+    }: HttpContextContract) {
         const payload = await request.validate(LeaveConfirmValidator);
 
         const selected_id = payload.selected_id;
         const status = payload.status;
+        let rejection_reason = "";
 
-        console.log(status, typeof status);
+        if (payload.rejection_reason) {
+            // if provided, assign to variable
+            rejection_reason = payload.rejection_reason;
+        }
 
-        await ConfirmLeaves.runUseCase({ selected_id, status });
+        await ConfirmLeaves.runUseCase({
+            selected_id,
+            status,
+            user_id,
+            rejection_reason,
+        });
 
         return response.send(
             standarizedResponse(

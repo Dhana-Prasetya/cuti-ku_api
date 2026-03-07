@@ -6,25 +6,21 @@ export default class ConfirmLeaves {
     public static async runUseCase({
         selected_id,
         status,
+        user_id,
+        rejection_reason,
     }: {
         selected_id: number;
         status: string;
+        user_id: string;
+        rejection_reason: string;
     }) {
         LoggerContract.info("", "Starting confirm of user leave process");
-
-        const selectedData = await userRepository.getDetailedLeave(selected_id);
-
-        if (!selectedData) {
-            throw new ErrorMapper("Selected leave data not found !", 404);
-        }
-
-        if (selectedData.status !== "Pending") {
-            throw new ErrorMapper("Only pending leave can be confirmed !", 403);
-        }
 
         const data = await userRepository.confirmLeaveStatus(
             selected_id,
             status,
+            user_id,
+            rejection_reason,
         );
 
         LoggerContract.info(

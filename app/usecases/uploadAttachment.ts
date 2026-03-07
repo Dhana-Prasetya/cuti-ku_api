@@ -18,12 +18,21 @@ export default class UploadAttachment {
         try {
             LoggerContract.info("", "Starting upload of attachment");
 
-            const uniqueId = jwtServices.generateUniqueId();
-            const file_name = uniqueId;
+            let start_date_string: string = start_date.toISODate(); // turn luxon format into string
+            let end_date_string: string = end_date.toISODate();
 
-            const startUTC = DateTime.fromISO(start_date);
-            const endUTC = DateTime.fromISO(end_date);
-            const daysGap = endUTC.diff(startUTC, "days").days;
+            const start_date_UTC: Date = new Date(start_date_string); // turn string into utc date (cant be done directly since it would get normalized)
+            const end_date_UTC: Date = new Date(end_date_string);
+
+            const uniqueId: string = jwtServices.generateUniqueId();
+            const file_name: any = `${user_id}_${uniqueId}`;
+
+            const gap = end_date_UTC.getTime() - start_date_UTC.getTime(); // subtratct to get the gap in milliseconds
+            const daysGap = gap / (1000 * 60 * 60 * 24) + 1; // convert milliseconds into days, then add 1 to include both start and end date in the count
+
+            const year = start_date_UTC.getUTCFullYear();
+
+            console.log(daysGap, typeof daysGap); // debug
 
             attachment_url = await cloudinaryServices.uploadAttachment(
                 data,
@@ -32,23 +41,26 @@ export default class UploadAttachment {
 
             const insertAttachment = await userRepository.addLeaves(
                 user_id,
-                start_date,
-                end_date,
+                start_date_UTC,
+                end_date_UTC,
                 attachment_url,
                 daysGap,
+                year,
             );
 
             LoggerContract.info("", "Completed upload of attachment");
 
             return insertAttachment;
         } catch (error) {
+            cloudinaryServices.deleteAttachment(attachment_url); // Clean up the uploaded file if there was an error during the process
+
             const isOverlapError =
                 error instanceof ErrorMapper &&
                 error.appCode === "EXCLUDE_OVERLAPPING_LEAVE";
 
-            if (isOverlapError && attachment_url) {
-                await cloudinaryServices.deleteAttachment(attachment_url);
-            }
+            const isInsufficientBalanceError =
+                error instanceof ErrorMapper &&
+                error.appCode === "LEAVE_BALANCE_INSUFFICIENT";
 
             throw error;
         }
