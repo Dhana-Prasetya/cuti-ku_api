@@ -25,7 +25,7 @@ import userRoutes from "./routes/user";
 
 Route.get("/", async () => {
     return { code: 200, message: "Welcome to Cuti-Ku API!" };
-});
+}).middleware("RateLimiter");
 
 authRoutes();
 leavesRoutes();
@@ -33,4 +33,4 @@ userRoutes();
 
 Route.get("*", async () => {
     return { code: 404, message: "Route not found" };
-});
+}).middleware("RateLimiter");

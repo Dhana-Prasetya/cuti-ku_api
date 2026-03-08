@@ -12,7 +12,6 @@ import IdValidator from "App/Validators/IdValidator";
 import LeaveConfirmValidator from "App/Validators/LeaveConfirmValidator";
 import ConfirmLeaves from "App/usecases/confirmLeaves";
 import DeleteMyLeaves from "App/usecases/deleteMyLeaves";
-import { pathToFileURL } from "url";
 
 export default class LeavesController {
     public async submit({ user_id, request, response }: HttpContextContract) {
@@ -93,7 +92,7 @@ export default class LeavesController {
         let validateId = id;
         validateId = await request.validate(IdValidator);
 
-        const data = DeleteMyLeaves.runUseCase(id, user_id);
+        const data = await DeleteMyLeaves.runUseCase(id, user_id);
 
         return response.send(
             standarizedResponse(

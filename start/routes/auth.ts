@@ -22,5 +22,10 @@ export default function authRoutes() {
         ).middleware("AdminCookieAuth");
 
         Route.get("refresh", "AuthController.refresh");
-    }).prefix("/auth");
+        Route.post("logout", "AuthController.logout").middleware(
+            "GlobalCookieAuth",
+        );
+    })
+        .prefix("/auth")
+        .middleware("RateLimiter");
 }

@@ -42,4 +42,5 @@ Server.middleware.registerNamed({
     EmployeeCookieAuth: () => import("App/Middleware/EmployeeCookieAuth"),
     AdminCookieAuth: () => import("App/Middleware/AdminCookieAuth"),
     GlobalCookieAuth: () => import("App/Middleware/GlobalCookieAuth"),
+    RateLimiter: () => import("App/Middleware/RateLimiter"),
 });

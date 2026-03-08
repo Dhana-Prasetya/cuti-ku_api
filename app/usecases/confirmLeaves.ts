@@ -1,6 +1,5 @@
 import userRepository from "@ioc:App/UserRepository";
 import LoggerContract from "@ioc:App/Services/LoggerContract";
-import ErrorMapper from "App/helper/ErrorMapper";
 
 export default class ConfirmLeaves {
     public static async runUseCase({

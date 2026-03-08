@@ -2,7 +2,6 @@ import { AttachmentUploadDTO } from "App/helper/attachmentUploadDTO";
 import cloudinaryServices from "@ioc:App/Services/CloudinaryServicesContract";
 import jwtServices from "@ioc:App/Services/JwtServicesContract";
 import userRepository from "@ioc:App/UserRepository";
-import { DateTime } from "luxon";
 import LoggerContract from "@ioc:App/Services/LoggerContract";
 import ErrorMapper from "App/helper/ErrorMapper";
 

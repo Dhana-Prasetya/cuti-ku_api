@@ -13,6 +13,7 @@ import ChangePasswordValidator from "App/Validators/ChangePasswordValidator";
 import EmailValidator from "App/Validators/EmailValidator";
 import RegisterEmployee from "App/usecases/registerEmployee";
 import RefreshingToken from "App/usecases/refreshingToken";
+import Logout from "App/usecases/logout";
 
 export default class AuthController {
     public async login({ request, response }: HttpContextContract) {
@@ -89,9 +90,6 @@ export default class AuthController {
             { oldAccessToken },
             { organization_oauth },
         ); // Use case for handling OAuth login logic
-
-        if (!validAuth)
-            return ctx.response.unauthorized({ message: "User not found" });
 
         // Cookies
 
@@ -212,5 +210,23 @@ export default class AuthController {
                     "Access token refreshed successfully !",
                 ),
             );
+    }
+
+    public async logout({ request, response }: HttpContextContract) {
+        const refreshToken = request.cookie("refreshToken");
+        const accessToken = request.cookie("accessToken");
+
+        const logout = await Logout.runUseCase(
+            {
+                refreshToken,
+            },
+            {
+                accessToken,
+            },
+        );
+
+        return response
+            .status(201)
+            .send(standarizedResponse(null, 201, "User logout successfully !"));
     }
 }

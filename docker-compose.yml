@@ -1,0 +1,80 @@
+services:
+    # ----------------------------
+    # Production reference
+    # ----------------------------
+    # web:
+    #     build:
+    #         context: .
+    #         dockerfile: dockerfile
+    #     ports:
+    #         - "5000:5000"
+    #     env_file:
+    #         - .env
+    #     environment:
+    #         NODE_ENV: production
+    #         HOST: 0.0.0.0
+    #         PORT: 5000
+    #         DATABASE_URL: postgresql://postgres:postgres@postgres:5432/mydb?schema=public
+    #         REDIS_URL: redis://redis:6379
+    #     depends_on:
+    #         postgres:
+    #             condition: service_healthy
+    #         redis:
+    #             condition: service_healthy
+    #     restart: unless-stopped
+
+    # Active development service
+    web:
+        image: node:22-alpine
+        working_dir: /app
+        ports:
+            - "5000:5000"
+        env_file:
+            - .env
+        environment:
+            NODE_ENV: development
+            HOST: 0.0.0.0
+            PORT: 5000
+            DATABASE_URL: postgresql://postgres:postgres@postgres:5432/mydb?schema=public
+            REDIS_URL: redis://redis:6379
+        command: sh -c "npm ci && node ace serve --watch"
+        volumes:
+            - ./:/app
+            - /app/node_modules
+        depends_on:
+            postgres:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+        restart: unless-stopped
+    postgres:
+        image: postgres:16-alpine
+        restart: unless-stopped
+        environment:
+            POSTGRES_DB: mydb
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+        ports:
+            - "5432:5432"
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U postgres -d mydb"]
+            interval: 5s
+            timeout: 5s
+            retries: 20
+    redis:
+        image: redis:7-alpine
+        restart: unless-stopped
+        command: ["redis-server", "--appendonly", "yes"]
+        volumes:
+            - redis_data:/data
+        healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            interval: 5s
+            timeout: 3s
+            retries: 20
+
+volumes:
+    postgres_data:
+    redis_data:

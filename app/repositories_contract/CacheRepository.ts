@@ -5,6 +5,8 @@ declare module "@ioc:App/Repositories/CacheRepository" {
         deleteRefreshToken(key: string): Promise<void>;
         revokeSession(key: string, ttl: number): Promise<void>;
         getRevokedToken(key: string): Promise<any>;
+        getRateLimit(key: string): Promise<any>;
+        setRateLimit(key: string, ttl: number): Promise<void>;
     }
 
     const cacheRepository: CacheRepository;

@@ -18,6 +18,8 @@ export default class RefreshingToken {
             oldAccessToken?: string;
         },
     ) {
+        LoggerContract.info("", "Starting token refreshing process");
+
         if (!oldRefreshToken) {
             throw new ErrorMapper("Refresh token is required !", 400);
         }
@@ -45,8 +47,6 @@ export default class RefreshingToken {
             user_id,
             user_role,
         );
-
-        console.log("user_id from cache:", user_id, user_role); // Debug log to check the value of user_id
 
         const refreshTokenTTL = 60 * 60 * 24 * 7; // 7 days in seconds
 

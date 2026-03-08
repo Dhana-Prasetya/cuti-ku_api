@@ -8,5 +8,7 @@ export default function userRoutes() {
         Route.patch("enable/:id", "UserController.enable").middleware(
             "AdminCookieAuth",
         );
-    }).prefix("user");
+    })
+        .prefix("user")
+        .middleware("RateLimiter");
 }
