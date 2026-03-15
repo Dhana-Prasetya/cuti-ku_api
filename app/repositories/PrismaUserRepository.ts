@@ -1,5 +1,6 @@
 import type { UserRepository } from "@ioc:App/UserRepository"; // Import the UserRepository contract
 import ErrorMapper from "App/helper/ErrorMapper";
+import { DateTime } from "luxon";
 
 import prisma from "Config/prisma";
 
@@ -108,7 +109,7 @@ export default class PrismaUserRepository implements UserRepository {
     public async getUserRole(id: string) {
         const query = await prisma.users.findUnique({
             where: { id: id },
-            select: { role: true },
+            select: { role: true, enabled: true },
         });
 
         return query;
@@ -146,6 +147,7 @@ export default class PrismaUserRepository implements UserRepository {
                 approved_by: true,
                 created_at: true,
             },
+            orderBy: { created_at: "desc" }, // Order by created_at in descending order to get the latest records first
         });
 
         return query;
@@ -183,21 +185,20 @@ export default class PrismaUserRepository implements UserRepository {
 
     public async addLeaves(
         user_id: string,
-        start_date: any,
-        end_date: any,
+        start_date_UTC: Date,
+        end_date_UTC: Date,
         attachment_url: any,
         daysGap: number,
+        year: number,
     ) {
-        const year = new Date(start_date).getFullYear();
-
         try {
             const prismaTransaction = await prisma.$transaction(
                 async (tx) => {
                     const insertLeave = await tx.paid_leave.create({
                         data: {
                             user_id: user_id,
-                            start_date: start_date,
-                            end_date: end_date,
+                            start_date: start_date_UTC,
+                            end_date: end_date_UTC,
                             attachment_url: attachment_url,
                         },
                     });
@@ -233,6 +234,16 @@ export default class PrismaUserRepository implements UserRepository {
                 );
             }
 
+            const postgreCode = error?.cause?.code;
+
+            if (postgreCode === "23514") {
+                throw new ErrorMapper(
+                    "Your paid leaves quota are lesser than the requested for the respective year!",
+                    400,
+                    "LEAVE_BALANCE_INSUFFICIENT",
+                );
+            }
+
             throw error;
         }
     }
@@ -246,18 +257,109 @@ export default class PrismaUserRepository implements UserRepository {
     }
 
     public async deleteSelectedLeave(id: number, user_id: string) {
-        const query = await prisma.paid_leave.delete({
-            where: { id: id, user_id: user_id },
+        const prismaTransaction = await prisma.$transaction(async (tx) => {
+            const dbData = await this.getDetailedLeave(id);
+
+            if (!dbData) {
+                throw new ErrorMapper("Selected leave not found", 404);
+            }
+
+            if (dbData.status !== "Pending") {
+                throw new ErrorMapper(
+                    "Only pending leaves can be deleted",
+                    400,
+                );
+            }
+
+            const attachment_url = dbData.attachment_url;
+
+            const query = await prisma.paid_leave.delete({
+                where: { id: id, user_id: user_id },
+            });
+
+            const gap = query.end_date.getTime() - query.start_date.getTime(); // subtratct to get the gap in milliseconds
+            const daysGap: any = gap / (1000 * 60 * 60 * 24) + 1; // convert milliseconds into days, then add 1 to include both start and end date in the count
+            const leave_year: any = query.start_date.getUTCFullYear();
+
+            await tx.leave_balances.update({
+                // Update the leave balance by decrementing the taken leaves (return to normal)
+                where: {
+                    user_id_year: {
+                        user_id: query.user_id,
+                        year: leave_year,
+                    },
+                },
+                data: {
+                    taken: { decrement: daysGap },
+                },
+            });
+
+            return { query, attachment_url };
         });
 
-        return query;
+        return prismaTransaction;
     }
 
-    public async confirmLeaveStatus(id: number, status: any) {
-        const query = await prisma.paid_leave.update({
-            where: { id: id },
-            data: { status: status },
-        });
+    public async confirmLeaveStatus(
+        id: number,
+        status: any,
+        user_id: string,
+        rejection_reason: string,
+    ) {
+        const prismaTransaction = await prisma.$transaction(
+            async (tx) => {
+                const employee: any = await tx.paid_leave.findUnique({
+                    where: { id: id },
+                    select: {
+                        status: true,
+                    },
+                });
+
+                if (employee.status !== "Pending") {
+                    throw new ErrorMapper(
+                        "Only pending leave can be confirmed !",
+                        403,
+                    );
+                }
+
+                const query = await tx.paid_leave.update({
+                    where: { id: id },
+                    data: {
+                        status: status,
+                        rejection_reason: rejection_reason,
+                        approved_by: user_id,
+                    },
+                    select: {
+                        user_id: true,
+                        start_date: true,
+                        end_date: true,
+                    },
+                });
+
+                if (status === "Rejected") {
+                    const gap =
+                        query.end_date.getTime() - query.start_date.getTime(); // subtratct to get the gap in milliseconds
+                    const daysGap: any = gap / (1000 * 60 * 60 * 24) + 1; // convert milliseconds into days, then add 1 to include both start and end date in the count
+                    const leave_year: any = query.start_date.getUTCFullYear();
+
+                    await tx.leave_balances.update({
+                        where: {
+                            user_id_year: {
+                                user_id: query.user_id,
+                                year: leave_year,
+                            },
+                        },
+                        data: {
+                            taken: { decrement: daysGap },
+                        },
+                    });
+                }
+            },
+            {
+                isolationLevel: "Serializable", // Set the isolation level to prevent race condition
+                timeout: 8000,
+            },
+        );
     }
 
     public async countUserList() {

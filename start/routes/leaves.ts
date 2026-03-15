@@ -23,5 +23,7 @@ export default function leavesRoutes() {
         Route.patch("list/confirm", "LeavesController.confirmLeave").middleware(
             "AdminCookieAuth",
         );
-    }).prefix("leaves");
+    })
+        .prefix("leaves")
+        .middleware("RateLimiter");
 }

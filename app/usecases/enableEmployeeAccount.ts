@@ -22,9 +22,18 @@ export default class EnableEmployeeAccount {
             throw new ErrorMapper("Cannot enable/disable admin account !", 403);
         }
 
-        await cacheRepository.deleteRefreshToken(user_id);
+        if (user.enabled === enableStatus) {
+            throw new ErrorMapper(
+                `User account is already ${enableStatus ? "enabled" : "disabled"} !`,
+                400,
+            );
+        }
 
-        await cacheRepository.revokeSession(user_id, 60 * 5 * 3); // Blacklist access token for 15 minutes
+        if (enableStatus === false) {
+            // if the account is being disabled, revoke all tokens and sessions
+            await cacheRepository.deleteRefreshToken(user_id);
+            await cacheRepository.revokeSession(user_id, 60 * 5 * 3); // Blacklist access token for 15 minutes
+        }
 
         const data = await userRepository.setUserAccountAccess(
             user_id,

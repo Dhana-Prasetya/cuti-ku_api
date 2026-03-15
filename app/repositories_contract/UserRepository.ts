@@ -18,14 +18,20 @@ declare module "@ioc:App/UserRepository" {
         countLeaveList(): Promise<any>;
         addLeaves(
             user_id: string,
-            start_date: any,
-            end_date: any,
+            start_date_UTC: Date,
+            end_date_UTC: Date,
             attachment_url: any,
             daysGap: number,
+            year: number,
         ): Promise<any>;
         getDetailedLeave(id: number): Promise<any>;
         deleteSelectedLeave(id: number, user_id: string): Promise<any>;
-        confirmLeaveStatus(id: number, status: any): Promise<void>;
+        confirmLeaveStatus(
+            id: number,
+            status: any,
+            user_id: string,
+            rejection_reason: string,
+        ): Promise<void>;
         countUserList(): Promise<any>;
         getPaginatedUserList(page: number, limit: number): Promise<any>;
         setUserAccountAccess(user_id: string, enableStatus: any): Promise<any>;
