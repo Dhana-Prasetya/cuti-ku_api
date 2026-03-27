@@ -41,7 +41,7 @@ export default class CloudinaryServices implements CloudinaryServicesContract {
     public deleteAttachment = async (attachment_url: any) => {
         const cloudinaryPublicId = getCloudinaryPublicId(attachment_url);
 
-        const status = await v2.uploader.destroy(cloudinaryPublicId, {
+        await v2.uploader.destroy(cloudinaryPublicId, {
             type: "upload",
         });
     };

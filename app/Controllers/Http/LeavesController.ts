@@ -86,13 +86,11 @@ export default class LeavesController {
     }
 
     public async delete({ user_id, request, response }: HttpContextContract) {
-        let id = request.param("id");
-        id = parseInt(id);
+        let idObject = request.param("id");
 
-        let validateId = id;
-        validateId = await request.validate(IdValidator);
+        idObject = await request.validate(IdValidator);
 
-        const data = await DeleteMyLeaves.runUseCase(id, user_id);
+        const data = await DeleteMyLeaves.runUseCase(idObject.id, user_id);
 
         return response.send(
             standarizedResponse(

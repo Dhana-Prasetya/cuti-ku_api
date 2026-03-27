@@ -3,7 +3,6 @@ import cloudinaryServices from "@ioc:App/Services/CloudinaryServicesContract";
 import jwtServices from "@ioc:App/Services/JwtServicesContract";
 import userRepository from "@ioc:App/UserRepository";
 import LoggerContract from "@ioc:App/Services/LoggerContract";
-import ErrorMapper from "App/helper/ErrorMapper";
 
 export default class UploadAttachment {
     public async execute(
@@ -31,8 +30,6 @@ export default class UploadAttachment {
 
             const year = start_date_UTC.getUTCFullYear();
 
-            console.log(daysGap, typeof daysGap); // debug
-
             attachment_url = await cloudinaryServices.uploadAttachment(
                 data,
                 file_name,
@@ -52,14 +49,6 @@ export default class UploadAttachment {
             return insertAttachment;
         } catch (error) {
             cloudinaryServices.deleteAttachment(attachment_url); // Clean up the uploaded file if there was an error during the process
-
-            const isOverlapError =
-                error instanceof ErrorMapper &&
-                error.appCode === "EXCLUDE_OVERLAPPING_LEAVE";
-
-            const isInsufficientBalanceError =
-                error instanceof ErrorMapper &&
-                error.appCode === "LEAVE_BALANCE_INSUFFICIENT";
 
             throw error;
         }

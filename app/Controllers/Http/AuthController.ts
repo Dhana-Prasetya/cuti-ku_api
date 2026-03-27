@@ -116,17 +116,15 @@ export default class AuthController {
     }
 
     public async setPassword({
-        user_id,
+        user_id = "2fbc1edd-4034-43e0-b22c-26c080645a22",
         request,
         response,
     }: HttpContextContract) {
-        let password: any = request.input("password");
+        let passwordObject: any = request.input("password");
 
-        let validatePassword: any = password;
+        passwordObject = await request.validate(SetPasswordValidator); // Validator (returning object with password property)
 
-        validatePassword = await request.validate(SetPasswordValidator); // Validator (returning object with password property)
-
-        await SetPassword.runUseCase(user_id, password);
+        await SetPassword.runUseCase(user_id, passwordObject.password);
 
         return response
             .status(201)
@@ -154,13 +152,13 @@ export default class AuthController {
     }
 
     public async registerEmployee({ request, response }: HttpContextContract) {
-        const email = request.input("email");
+        let emailObject = request.input("email");
 
-        let validateEmail: any = email;
+        emailObject = await request.validate(EmailValidator); // Validator for email data
 
-        validateEmail = await request.validate(EmailValidator); // Validator for email data
+        console.log(emailObject.email, emailObject);
 
-        await RegisterEmployee.runUseCase(email);
+        await RegisterEmployee.runUseCase(emailObject.email);
 
         return response
             .status(201)
@@ -216,7 +214,7 @@ export default class AuthController {
         const refreshToken = request.cookie("refreshToken");
         const accessToken = request.cookie("accessToken");
 
-        const logout = await Logout.runUseCase(
+        await Logout.runUseCase(
             {
                 refreshToken,
             },
@@ -226,7 +224,7 @@ export default class AuthController {
         );
 
         return response
-            .status(201)
-            .send(standarizedResponse(null, 201, "User logout successfully !"));
+            .status(200)
+            .send(standarizedResponse(null, 200, "User logout successfully !"));
     }
 }
