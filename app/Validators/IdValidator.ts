@@ -4,8 +4,12 @@ import type { HttpContextContract } from "@ioc:Adonis/Core/HttpContext";
 export default class IdValidator {
     constructor(protected ctx: HttpContextContract) {}
 
+    public data = {
+        ...this.ctx.params,
+    };
+
     public schema = schema.create({
-        id: schema.number.optional([
+        id: schema.number([
             rules.range(1, Number.MAX_SAFE_INTEGER), // Ensure id is a positive integer for optional field
         ]),
     });

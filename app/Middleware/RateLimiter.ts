@@ -20,7 +20,7 @@ export default class RateLimiter {
             );
         }
 
-        await cacheRepository.setRateLimit(clientIp, 10); // Set rate limit for 10 seconds
+        await cacheRepository.setRateLimit(clientIp, 3); // Set rate limit for 3 seconds
         await next();
     }
 }

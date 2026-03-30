@@ -15,7 +15,7 @@ export default class ConfirmLeaves {
     }) {
         LoggerContract.info("", "Starting confirm of user leave process");
 
-        const data = await userRepository.confirmLeaveStatus(
+        await userRepository.confirmLeaveStatus(
             selected_id,
             status,
             user_id,

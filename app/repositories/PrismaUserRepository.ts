@@ -1,6 +1,5 @@
 import type { UserRepository } from "@ioc:App/UserRepository"; // Import the UserRepository contract
 import ErrorMapper from "App/helper/ErrorMapper";
-import { DateTime } from "luxon";
 
 import prisma from "Config/prisma";
 
@@ -306,7 +305,7 @@ export default class PrismaUserRepository implements UserRepository {
         user_id: string,
         rejection_reason: string,
     ) {
-        const prismaTransaction = await prisma.$transaction(
+        await prisma.$transaction(
             async (tx) => {
                 const employee: any = await tx.paid_leave.findUnique({
                     where: { id: id },
