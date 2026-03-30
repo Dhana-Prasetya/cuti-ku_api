@@ -6,11 +6,11 @@ export default class AppProvider {
     public register() {
         this.app.container.singleton("App/UserRepository", () => {
             const {
-                default: LucidUserRepository,
+                default: PrismaUserRepository,
                 // eslint-disable-next-line @typescript-eslint/no-var-requires
             } = require("App/repositories/PrismaUserRepository");
 
-            return new LucidUserRepository();
+            return new PrismaUserRepository();
         });
 
         this.app.container.singleton("App/Repositories/CacheRepository", () => {

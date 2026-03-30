@@ -116,7 +116,7 @@ export default class AuthController {
     }
 
     public async setPassword({
-        user_id = "2fbc1edd-4034-43e0-b22c-26c080645a22",
+        user_id,
         request,
         response,
     }: HttpContextContract) {
